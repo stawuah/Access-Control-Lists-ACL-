@@ -38,10 +38,6 @@ const registerAsAdmin = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
 
-        if (!imageName) {
-            return res.status(400).json({ message: 'Image upload failed.' });
-        }
-
         const newUser = new User({
             name,
             password: hashedPassword,
