@@ -13,7 +13,7 @@ aclInstance.allow([
             { resources: '/registerAsAdmin', permissions: 'post' },
             // Define more admin-specific permissions here
         ],
-    },
+    }, ~
     {
         roles: 'user',
         allows: [
@@ -54,6 +54,7 @@ const registerAsAdmin = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
 
 module.exports = {
     registerAsAdmin,
