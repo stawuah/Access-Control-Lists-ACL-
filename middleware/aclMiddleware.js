@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // Custom authentication middleware
 const authenticateUser = (req, res, next) => {
@@ -19,7 +21,23 @@ const authenticateUser = (req, res, next) => {
     }
 };
 
-module.exports = authenticateUser;
+ const GenerateSalt = async () => {
+  return await bcrypt.genSalt();
+};
+
+ const GeneratePassword = async (password, salt) => {
+  return await bcrypt.hash(password, salt);
+};
+
+ const ValidatePassword = async (enteredPassword, savedPassword) => {
+  return await bcrypt.compare(enteredPassword, savedPassword);
+};
+
+const GenerateSignature = async (payload) => {
+  return jwt.sign(payload, process.env.APP_SECRET, { expiresIn: '90d' });
+};
+
+module.exports = { authenticateUser, GeneratePassword, GenerateSignature, GenerateSalt, ValidatePassword};
 
 
 

@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const { ValidatePassword, GenerateSignature ,GeneratePassword, GenerateSalt } =require("../middleware/aclMiddleware")
 const acl = require('acl')
 const User = require('../model/userModels')
 
@@ -22,7 +22,28 @@ aclInstance.allow([
     },
 ]);
 
-// Register endpoint for admin
+const login = async (req, res) => {
+
+    try {  
+
+    const { password, email } = req.body;
+
+    const user = await User.findOne({ email });
+    
+    if(!user){res.status(400).json({ error: 'Invalid Password or Email!' })};
+    if (user && (await ValidatePassword(password, user.password ))){
+
+      const givenToken = await GenerateSignature({ id: user._id });
+  
+      res.json({ user, givenToken });
+    }
+} catch (error) {
+    console.error('Error:', error.message);
+    es.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+// Register controller for admin
 const registerAsAdmin = async (req, res) => {
     try {
         // Check if the current user has the necessary permissions to access this route
@@ -34,10 +55,9 @@ const registerAsAdmin = async (req, res) => {
 
 
         // Perform user registration logic here
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-
+        const salt = await GenerateSalt();
+        const hashedPassword = await GeneratePassword(password, salt);
+  
         const newUser = new User({
             name,
             password: hashedPassword,
@@ -57,4 +77,5 @@ const registerAsAdmin = async (req, res) => {
 
 module.exports = {
     registerAsAdmin,
+    login
 };
